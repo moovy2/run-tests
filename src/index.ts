@@ -1,8 +1,8 @@
-// Copyright 2020 The MathWorks, Inc.
+// Copyright 2020-2023 The MathWorks, Inc.
 
 import * as core from "@actions/core";
 import * as exec from "@actions/exec";
-import { matlab } from "run-command";
+import { matlab } from "run-matlab-command-action";
 import * as scriptgen from "./scriptgen";
 
 /**
@@ -10,6 +10,7 @@ import * as scriptgen from "./scriptgen";
  */
 async function run() {
     const platform = process.platform;
+    const architecture = process.arch;
     const workspaceDir = process.cwd();
 
     const options: scriptgen.RunTestsOptions = {
@@ -21,9 +22,14 @@ async function run() {
         CoberturaModelCoverage: core.getInput("model-coverage-cobertura"),
         SelectByTag: core.getInput("select-by-tag"),
         SelectByFolder: core.getInput("select-by-folder"),
+        Strict: core.getBooleanInput("strict"),
+        UseParallel: core.getBooleanInput("use-parallel"),
+        OutputDetail: core.getInput("output-detail"),
+        LoggingLevel: core.getInput("logging-level"),
     };
 
     const command = scriptgen.generateCommand(options);
+    const startupOptions = core.getInput("startup-options").split(" ");
 
     const helperScript = await core.group("Generate script", async () => {
         const helperScript = await matlab.generateScript(workspaceDir, command);
@@ -32,7 +38,7 @@ async function run() {
     });
 
     await core.group("Run command", async () => {
-        await matlab.runCommand(helperScript, platform, exec.exec);
+        await matlab.runCommand(helperScript, platform, architecture, exec.exec, startupOptions);
     });
 }
 

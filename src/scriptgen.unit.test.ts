@@ -1,4 +1,4 @@
-// Copyright 2020 The MathWorks, Inc.
+// Copyright 2020-2022 The MathWorks, Inc.
 
 import * as scriptgen from "./scriptgen";
 
@@ -13,6 +13,10 @@ describe("command generation", () => {
             CoberturaModelCoverage: "",
             SelectByTag: "",
             SelectByFolder: "",
+            Strict: false,
+            UseParallel: false,
+            OutputDetail: "",
+            LoggingLevel: "",
         };
 
         const actual = scriptgen.generateCommand(options);
@@ -26,10 +30,16 @@ describe("command generation", () => {
         expect(actual.includes("'CoberturaModelCoverage',''")).toBeTruthy();
         expect(actual.includes("'SelectByTag',''")).toBeTruthy();
         expect(actual.includes("'SelectByFolder',''")).toBeTruthy();
+        expect(actual.includes("'Strict',false")).toBeTruthy();
+        expect(actual.includes("'UseParallel',false")).toBeTruthy();
+        expect(actual.includes("'OutputDetail',''")).toBeTruthy();
+        expect(actual.includes("'LoggingLevel',''")).toBeTruthy();
 
         const expected = `genscript('Test', 'JUnitTestResults','', 'CoberturaCodeCoverage','', 
         'SourceFolder','', 'PDFTestReport','', 'SimulinkTestResults','', 
-        'CoberturaModelCoverage','', 'SelectByTag','', 'SelectByFolder','' )`.replace(/\s+/g, "");
+        'CoberturaModelCoverage','', 'SelectByTag','', 'SelectByFolder','', 
+        'Strict',false, 'UseParallel',false, 'OutputDetail','', 'LoggingLevel','')`
+        .replace(/\s+/g, "");
         expect(actual.replace(/\s+/g, "").includes(expected)).toBeTruthy();
     });
 
@@ -43,6 +53,10 @@ describe("command generation", () => {
             CoberturaModelCoverage: "test-results/modelcoverage.xml",
             SelectByTag: "FeatureA",
             SelectByFolder: "test/tools;test/toolbox",
+            Strict: true,
+            UseParallel: true,
+            OutputDetail: "Detailed",
+            LoggingLevel: "Detailed",
         };
 
         const actual = scriptgen.generateCommand(options);
@@ -62,12 +76,17 @@ describe("command generation", () => {
         ).toBeTruthy();
         expect(actual.includes("'SelectByTag','FeatureA'")).toBeTruthy();
         expect(actual.includes("'SelectByFolder','test/tools;test/toolbox'")).toBeTruthy();
+        expect(actual.includes("'Strict',true")).toBeTruthy();
+        expect(actual.includes("'UseParallel',true")).toBeTruthy();
+        expect(actual.includes("'OutputDetail','Detailed'")).toBeTruthy();
+        expect(actual.includes("'LoggingLevel','Detailed'")).toBeTruthy();
 
         const expected = `genscript('Test', 'JUnitTestResults','test-results/results.xml', 
         'CoberturaCodeCoverage','code-coverage/coverage.xml', 'SourceFolder','source',
          'PDFTestReport','test-results/pdf-results.pdf', 'SimulinkTestResults','test-results/simulinkTest.mldatx',
           'CoberturaModelCoverage','test-results/modelcoverage.xml', 'SelectByTag','FeatureA', 
-          'SelectByFolder','test/tools;test/toolbox' )`.replace(/\s+/g, "");
+          'SelectByFolder','test/tools;test/toolbox', 'Strict',true, 'UseParallel',true, 'OutputDetail','Detailed', 
+          'LoggingLevel','Detailed' )`.replace(/\s+/g, "");
         expect(actual.replace(/\s+/g, "").includes(expected)).toBeTruthy();
     });
 });
